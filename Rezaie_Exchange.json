@@ -1,0 +1,566 @@
+{
+  "name": "Rezaie_Exchange",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -864,
+        -80
+      ],
+      "id": "1c518ad1-390c-4f2c-83bd-6a6366134074",
+      "name": "Telegram Trigger",
+      "webhookId": "65527e5f-38cf-4f91-9895-45a375102aa2",
+      "credentials": {
+        "telegramApi": {
+          "id": "znnVejVzzdLWIdqG",
+          "name": "exchange"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "81e8800e-b553-48d4-9070-85cd4b915de8",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/start",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -656,
+        -80
+      ],
+      "id": "d54a0ad3-6546-4f3c-b209-77cb867c3bee",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "سلام\nبه صرافی و خدمات پولی رضایی خوش آمدید!\nلطفا حواله امروز را در قالب متن یا صدای برای ما بفرستند تا در دیتابیس تان به ثبت برسانیم.\nلطفا پیام های‌تان را مطابق قالب ذیل بفرستید:\nنمبر حواله:\nنام فرستنده:\nنام گیرنده:\nمبلغ به تومان:\nمبلغ به افغانی:\nولایت گیرنده:",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        -240
+      ],
+      "id": "68ae4ec9-c2c9-4a6d-9dc3-5cb62091aebd",
+      "name": "Send a text message",
+      "webhookId": "2f71c38a-a40b-45b2-a9b5-e7aee2a4c2b2",
+      "credentials": {
+        "telegramApi": {
+          "id": "znnVejVzzdLWIdqG",
+          "name": "exchange"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.hasOwnProperty('text') }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "112dd9d7-2f57-4301-888c-1cd514dc870f"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "61ae2f46-0c6d-4b51-8377-d237df941062",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.hasOwnProperty('voice') }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -464,
+        48
+      ],
+      "id": "298ee31f-4ff3-457e-9133-92b2b41ba5a2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        208
+      ],
+      "id": "a5268294-9bd1-4a65-bfee-45ab9f920430",
+      "name": "Get a file",
+      "webhookId": "ebf440fe-321e-4bf2-8b87-17cc7d4c2d71",
+      "credentials": {
+        "telegramApi": {
+          "id": "znnVejVzzdLWIdqG",
+          "name": "exchange"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        208
+      ],
+      "id": "da759727-3873-4f16-bbae-a6938656f05d",
+      "name": "Transcribe a recording1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fHgnZyjGAjzV7VIV",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a strict JSON generator.\n\nExtract the following fields from the Persian text:\n\n- transfer_number\n- sender\n- receiver\n- amount_toman\n- amount_afghani\n- receiver_province\n\nRules:\n- Return ONLY a valid JSON object.\n- DO NOT wrap the JSON in quotes.\n- DO NOT escape characters.\n- DO NOT add \\n or backslashes.\n- DO NOT explain anything.\n- Output must be directly parsable JSON.\n- If a value is missing, use null.\n\nExample output:\n{\n  \"transfer_number\": \"1\",\n  \"sender\": \"محمد محمدی\",\n  \"receiver\": \"کریم کریمی\",\n  \"amount_toman\": \"۱۰ میلیون تومان\",\n  \"amount_afghani\": \"۴۰۰۰ افغانی\",\n  \"receiver_province\": \"کابل\"\n}\n\n\nReturn the result using the provided JSON schema.\n\ninput: \n{{ $json.user_message }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        304,
+        48
+      ],
+      "id": "16dc7590-b521-4213-8120-fb5da127d258",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        256
+      ],
+      "id": "8fb396a9-9547-4fe8-b44c-53ea139bc4e0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "EGf8CMNNaAR3BolX",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"transfer_number\": \"1\",\n  \"sender\": \"محمد محمدی\",\n  \"receiver\": \"کریم کریمی\",\n  \"amount_toman\": \"10 میلیون تومان\",\n  \"amount_afghani\": \"4000 چهار هزار افغانی\",\n  \"receiver_province\": \"کابل\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        240
+      ],
+      "id": "a769de33-dd6a-4aba-955e-50079093b7cb",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1eryHHUI2bhx_BLFJl7Wkuhe_N2NHoqEmWsmpXPLHK3c",
+          "mode": "list",
+          "cachedResultName": "صرافی من",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eryHHUI2bhx_BLFJl7Wkuhe_N2NHoqEmWsmpXPLHK3c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eryHHUI2bhx_BLFJl7Wkuhe_N2NHoqEmWsmpXPLHK3c/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "نمبر حواله": "={{ $json.output.transfer_number }}",
+            "فرستنده": "={{ $json.output.sender }}",
+            "گیرنده": "={{ $json.output.receiver }}",
+            "مبلع به تومان": "={{ $json.output.amount_toman }}",
+            "مبلع به افغانی": "={{ $json.output.amount_afghani }}",
+            "ولایت گیرنده": "={{ $json.output.receiver_province }}"
+          },
+          "matchingColumns": [
+            "نمبر حواله"
+          ],
+          "schema": [
+            {
+              "id": "نمبر حواله",
+              "displayName": "نمبر حواله",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "فرستنده",
+              "displayName": "فرستنده",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "گیرنده",
+              "displayName": "گیرنده",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "مبلع به تومان",
+              "displayName": "مبلع به تومان",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "مبلع به افغانی",
+              "displayName": "مبلع به افغانی",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ولایت گیرنده",
+              "displayName": "ولایت گیرنده",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        48
+      ],
+      "id": "b24e0fc9-6527-48df-b6f6-4637105bcf6b",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "unHYeFvrcD4Ixu9F",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        128,
+        48
+      ],
+      "id": "d45b6544-2ef9-4a19-a93c-0033346b5fc5",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b3de205f-eda0-468d-9dc1-01f7358ae9d2",
+              "name": "user_message",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        32
+      ],
+      "id": "10991550-7515-49d9-9e98-f97e0c974b7e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2af4327b-c931-4b14-a769-6e79c89909e3",
+              "name": "user_message",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        208
+      ],
+      "id": "11bd371b-2c52-4baa-a4c3-e9050df1f63b",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4a2c5fc4-a09a-4a55-9305-c1afbee54330",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bcdb15ef08ea53913b97983d05b8999b3799e508761b41e5475154b7f7280645"
+  },
+  "id": "e4Pm4XZ3upeuMCle",
+  "tags": []
+}
